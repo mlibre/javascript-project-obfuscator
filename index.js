@@ -3,6 +3,7 @@ const fs = require('fs')
 const random = require('random');
 let fileExtension = require('file-extension');
 let mkdirp = require('mkdirp');
+let cpfile = require('cp-file');
 
 let inputAddress = null;
 let outputAddress = `${__dirname}-${random.int(1000,100000000)}/`;
@@ -20,31 +21,42 @@ if(inputAddress == null)
 	console.log('You need to specify the folder address');
 	process.exit(0);
 }
-let excludeList = ['node_modules', '.vscode'];
+let excludeList = ['node_modules', '.vscode', '.git'];
+let obOptions = 
+{
+	identifierNamesGenerator: 'mangled',
+	stringArray: false,
+	target: 'node',
+	selfDefending: false,
+	rotateStringArray: true,
+	renameGlobals: true,
+	compact: true
+}
 
 async function obf()
 {
 	await mkdirp.sync(outputAddress);
 	let filesList = DLR(inputAddress, []);
-	console.log(filesList);
-	filesList.forEach(element =>
+	// console.log(filesList);
+	filesList.forEach(async function(element)
 	{
 		if(fileExtension(element) == 'js')
 		{
-			fs.readFile(element,'utf8',function (err, data)
+			fs.readFile(element,'utf8',async function (err, data)
 			{
-				obResult = ob.obfuscate(data);
+				obResult = ob.obfuscate(data,obOptions);
 				let obfCode = obResult.getObfuscatedCode();
-				fs.writeFileSync(outputAddress+element, obfCode);
+				await fs.writeFileSync(outputAddress+element, obfCode);
 			})
 		}
 		else
 		{
-			// copy file
+			await cpfile(element, outputAddress+element)
 		}
 	});
+	console.log('Encrypted project:', outputAddress);
 }
-obf()
+obf();
 
 // const JavaScriptObfuscator = require('javascript-obfuscator');
 // const fs = require('fs');

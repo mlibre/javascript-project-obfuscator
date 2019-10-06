@@ -20,7 +20,7 @@ Simply give it a folder address and this baby will do the job.
 
 ## Usage
 ~~~bash
-
+node index.js ./
 ~~~
 
 ## License

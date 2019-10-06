@@ -1,0 +1,28 @@
+{
+  "name": "javascript-project-obfuscator",
+  "version": "1.0.0",
+  "description": "Simple program to Obfuscate (make unreadable) your whole project or folder. Simply give it a folder address and this baby will do the job.",
+  "main": "index.js",
+  "dependencies": {
+    "cp": "^0.2.0",
+    "cp-file": "^7.0.0",
+    "file-extension": "^4.0.5",
+    "javascript-obfuscator": "^0.18.1",
+    "mkdirp": "^0.5.1",
+    "random": "^2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlibre/javascript-project-obfuscator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mlibre/javascript-project-obfuscator/issues"
+  },
+  "homepage": "https://github.com/mlibre/javascript-project-obfuscator#readme"
+}
