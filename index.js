@@ -21,7 +21,7 @@ if(inputAddress == null)
 	console.log('You need to specify the folder address');
 	process.exit(0);
 }
-let excludeList = ['node_modules', '.vscode', '.git'];
+let excludeList = ['node_modules', '.vscode', '.git','chromData'];
 let obOptions = 
 {
 	identifierNamesGenerator: 'mangled',
@@ -44,7 +44,11 @@ async function obf()
 		{
 			fs.readFile(element,'utf8',async function (err, data)
 			{
-				obResult = ob.obfuscate(data,obOptions);
+				try {
+					obResult = ob.obfuscate(data, obOptions);
+				} catch (error) {
+					console.log(error, inputAddress+element);
+				}
 				let obfCode = obResult.getObfuscatedCode();
 				await fs.writeFileSync(outputAddress+element, obfCode);
 			})
