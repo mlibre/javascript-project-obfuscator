@@ -21,7 +21,13 @@ Simply give it a folder address and this baby will do the job.
 ## Usage
 ~~~bash
 node index.js ./
+# OR
+node javascript-project-obfuscator/index.js path/to/
 ~~~
+
+## Documentation
+* Check out excludeList and obOptions vars in the js file to change options.
+* SelfDefend cause erro sometimes, but IT is highly RECOMMENDED TO Leave it enable
 
 ## License
 * Free.

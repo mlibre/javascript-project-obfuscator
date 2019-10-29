@@ -6,7 +6,7 @@ let mkdirp = require('mkdirp');
 let cpfile = require('cp-file');
 
 let inputAddress = null;
-let outputAddress = `${__dirname}-${random.int(1000,100000000)}/`;
+let outputAddress = `JPO-${random.int(1000,100000000)}/`;
 
 if(process.argv[2] != undefined)
 {
@@ -18,64 +18,55 @@ if(process.argv[3] != undefined)
 }
 if(inputAddress == null)
 {
-	console.log('You need to specify the folder address');
+	console.log('You need to specify the input folder address');
 	process.exit(0);
 }
+
 let excludeList = ['node_modules', '.vscode', '.git','chromData'];
 let obOptions = 
 {
 	identifierNamesGenerator: 'mangled',
 	stringArray: false,
 	target: 'node',
-	selfDefending: false,
+	selfDefending: true,
 	rotateStringArray: true,
 	renameGlobals: true,
 	compact: true
 }
 
+console.log('Configurations:');
+console.log(excludeList);
+console.log(obOptions);
+console.log("Output address" , outputAddress);
+
 async function obf()
 {
-	await mkdirp.sync(outputAddress);
+	mkdirp.sync(outputAddress);
 	let filesList = DLR(inputAddress, []);
-	// console.log(filesList);
 	filesList.forEach(async function(element)
 	{
 		if(fileExtension(element) == 'js')
 		{
-			fs.readFile(element,'utf8',async function (err, data)
+			let data = fs.readFileSync(element,'utf8');
+			try
 			{
-				try {
-					obResult = ob.obfuscate(data, obOptions);
-				} catch (error) {
-					console.log(error, inputAddress+element);
-				}
-				let obfCode = obResult.getObfuscatedCode();
-				await fs.writeFileSync(outputAddress+element, obfCode);
-			})
+				obResult = ob.obfuscate(data, obOptions);
+			}
+			catch (error)
+			{
+				console.log("Obfuscatation error" , error, inputAddress+element);
+			}
+			let obfCode = obResult.getObfuscatedCode();
+			await createFile(outputAddress + element.replace(inputAddress , ''), obfCode);
+			// fs.writeFileSync(outputAddress + element, obfCode);
 		}
 		else
 		{
-			await cpfile(element, outputAddress+element)
+			await cpfile(element, outputAddress+element.replace(inputAddress , ''))
 		}
 	});
-	console.log('Encrypted project:', outputAddress);
 }
 obf();
-
-// const JavaScriptObfuscator = require('javascript-obfuscator');
-// const fs = require('fs');
-// const obfuscate = (fileName) => {
-//   fs.readFile(fileName,'utf8', function(err, data) {
-//     if (err) {console.log(err)};
-//     let obfuscationResult = JavaScriptObfuscator.obfuscate(data);
-//     let uglyCode = obfuscationResult.getObfuscatedCode();
-//     fs.writeFile('ugly.js', uglyCode, function (err) {
-//       if (err) throw err;
-//       console.log(`${fileName} has been obfuscated at ugly.js`);
-//       });
-//     })
-// };
-
 
 function DLR(dir, fileList)
 {
@@ -115,4 +106,28 @@ function DLR(dir, fileList)
 		}
 	});
 	return fileList;
+}
+
+async function createFile(fullFileAddress, data)
+{
+	fs.writeFile(fullFileAddress , data, function (err)
+	{
+		if(err)
+		{
+			if(err.code == 'ENOENT')
+			{
+				// console.error( new Error(`#Space. Can not save file. message: ${err}`) );
+				// console.log(fullFileAddress);
+			}
+			let sliced_address = fullFileAddress.slice(0, fullFileAddress.lastIndexOf('/'));
+			mkdirp(sliced_address, (err) =>
+			{
+				createFile(fullFileAddress, data)
+			});
+		}
+		else
+		{
+			console.log(fullFileAddress);
+		}
+	});
 }
