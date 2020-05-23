@@ -1,5 +1,5 @@
 # Javascript Project Obfuscater
-Simple program to Obfuscate (make unreadable) your whole project or folder.
+Simple program to Obfuscate (make unreadable) your whole project, code or folder.
 Simply give it a folder address and this baby will do the job. 
 
 ## Table of content
