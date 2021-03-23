@@ -26,11 +26,11 @@ node javascript-project-obfuscator/index.js path/to/
 ~~~
 
 ## Documentation
-* Check out excludeList and obOptions vars in the js file to change options.
+* Check out excludeList and obOptions vars in the `index.js` file to change options.
 * SelfDefend cause erro sometimes, but IT is highly RECOMMENDED TO Leave it enable
 
 ## License
-* Free.
+* Free
 
 ## Donate
 My Bitcoin Address:

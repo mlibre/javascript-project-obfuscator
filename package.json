@@ -7,11 +7,10 @@
     "cp": "^0.2.0",
     "cp-file": "^7.0.0",
     "file-extension": "^4.0.5",
-    "javascript-obfuscator": "^0.18.1",
+    "javascript-obfuscator": "^2.11.0",
     "mkdirp": "^0.5.1",
     "random": "^2.1.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

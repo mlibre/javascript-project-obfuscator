@@ -7,7 +7,7 @@ import { IOptions } from '../../interfaces/options/IOptions';
 import { IRandomGenerator } from '../../interfaces/utils/IRandomGenerator';
 import { IVisitor } from '../../interfaces/node-transformers/IVisitor';
 
-import { TransformationStage } from '../../enums/node-transformers/TransformationStage';
+import { NodeTransformationStage } from '../../enums/node-transformers/NodeTransformationStage';
 
 import { AbstractNodeTransformer } from '../AbstractNodeTransformer';
 import { NodeFactory } from '../../node/NodeFactory';
@@ -16,6 +16,9 @@ import { NodeGuards } from '../../node/NodeGuards';
 /**
  * replaces:
  *     foo () { //... };
+ *
+ * or
+ *     'foo' () { //... };
  *
  * on:
  *     ['foo'] { //... };
@@ -33,7 +36,7 @@ export class MethodDefinitionTransformer extends AbstractNodeTransformer {
      * @param {IRandomGenerator} randomGenerator
      * @param {IOptions} options
      */
-    constructor (
+    public constructor (
         @inject(ServiceIdentifiers.IRandomGenerator) randomGenerator: IRandomGenerator,
         @inject(ServiceIdentifiers.IOptions) options: IOptions
     ) {
@@ -41,14 +44,14 @@ export class MethodDefinitionTransformer extends AbstractNodeTransformer {
     }
 
     /**
-     * @param {TransformationStage} transformationStage
+     * @param {NodeTransformationStage} nodeTransformationStage
      * @returns {IVisitor | null}
      */
-    public getVisitor (transformationStage: TransformationStage): IVisitor | null {
-        switch (transformationStage) {
-            case TransformationStage.Converting:
+    public getVisitor (nodeTransformationStage: NodeTransformationStage): IVisitor | null {
+        switch (nodeTransformationStage) {
+            case NodeTransformationStage.Converting:
                 return {
-                    enter: (node: ESTree.Node, parentNode: ESTree.Node | null) => {
+                    enter: (node: ESTree.Node, parentNode: ESTree.Node | null): ESTree.Node | undefined => {
                         if (parentNode && NodeGuards.isMethodDefinitionNode(node)) {
                             return this.transformNode(node, parentNode);
                         }
@@ -76,13 +79,52 @@ export class MethodDefinitionTransformer extends AbstractNodeTransformer {
      * @returns {NodeGuards}
      */
     public transformNode (methodDefinitionNode: ESTree.MethodDefinition, parentNode: ESTree.Node): ESTree.Node {
+        if (NodeGuards.isIdentifierNode(methodDefinitionNode.key)) {
+            return this.replaceIdentifierKey(methodDefinitionNode, methodDefinitionNode.key);
+        }
+
+        if (NodeGuards.isLiteralNode(methodDefinitionNode.key)) {
+            return this.replaceLiteralKey(methodDefinitionNode, methodDefinitionNode.key);
+        }
+
+        return methodDefinitionNode;
+    }
+
+    /**
+     * @param {MethodDefinition} methodDefinitionNode
+     * @param {Identifier} keyNode
+     * @returns {MethodDefinition}
+     */
+    private replaceIdentifierKey (
+        methodDefinitionNode: ESTree.MethodDefinition,
+        keyNode: ESTree.Identifier
+    ): ESTree.MethodDefinition {
         if (
-            NodeGuards.isIdentifierNode(methodDefinitionNode.key) &&
-            !MethodDefinitionTransformer.ignoredNames.includes(methodDefinitionNode.key.name) &&
-            methodDefinitionNode.computed === false
+            !MethodDefinitionTransformer.ignoredNames.includes(keyNode.name)
+            && !methodDefinitionNode.computed
         ) {
             methodDefinitionNode.computed = true;
-            methodDefinitionNode.key = NodeFactory.literalNode(methodDefinitionNode.key.name);
+            methodDefinitionNode.key = NodeFactory.literalNode(keyNode.name);
+        }
+
+        return methodDefinitionNode;
+    }
+
+    /**
+     * @param {MethodDefinition} methodDefinitionNode
+     * @param {Literal} keyNode
+     * @returns {MethodDefinition}
+     */
+    private replaceLiteralKey (
+        methodDefinitionNode: ESTree.MethodDefinition,
+        keyNode: ESTree.Literal
+    ): ESTree.MethodDefinition {
+        if (
+            typeof keyNode.value === 'string'
+            && !MethodDefinitionTransformer.ignoredNames.includes(keyNode.value)
+            && !methodDefinitionNode.computed
+        ) {
+            methodDefinitionNode.computed = true;
         }
 
         return methodDefinitionNode;

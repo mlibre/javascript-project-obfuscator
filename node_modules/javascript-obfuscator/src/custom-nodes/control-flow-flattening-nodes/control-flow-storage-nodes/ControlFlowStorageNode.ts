@@ -7,6 +7,7 @@ import { TControlFlowStorage } from '../../../types/storages/TControlFlowStorage
 import { TIdentifierNamesGeneratorFactory } from '../../../types/container/generators/TIdentifierNamesGeneratorFactory';
 import { TStatement } from '../../../types/node/TStatement';
 
+import { ICustomCodeHelperFormatter } from '../../../interfaces/custom-code-helpers/ICustomCodeHelperFormatter';
 import { ICustomNode } from '../../../interfaces/custom-nodes/ICustomNode';
 import { IOptions } from '../../../interfaces/options/IOptions';
 import { IRandomGenerator } from '../../../interfaces/utils/IRandomGenerator';
@@ -28,16 +29,23 @@ export class ControlFlowStorageNode extends AbstractCustomNode {
 
     /**
      * @param {TIdentifierNamesGeneratorFactory} identifierNamesGeneratorFactory
+     * @param {ICustomCodeHelperFormatter} customCodeHelperFormatter
      * @param {IRandomGenerator} randomGenerator
      * @param {IOptions} options
      */
-    constructor (
+    public constructor (
         @inject(ServiceIdentifiers.Factory__IIdentifierNamesGenerator)
             identifierNamesGeneratorFactory: TIdentifierNamesGeneratorFactory,
+        @inject(ServiceIdentifiers.ICustomCodeHelperFormatter) customCodeHelperFormatter: ICustomCodeHelperFormatter,
         @inject(ServiceIdentifiers.IRandomGenerator) randomGenerator: IRandomGenerator,
         @inject(ServiceIdentifiers.IOptions) options: IOptions
     ) {
-        super(identifierNamesGeneratorFactory, randomGenerator, options);
+        super(
+            identifierNamesGeneratorFactory,
+            customCodeHelperFormatter,
+            randomGenerator,
+            options
+        );
     }
 
     /**
@@ -66,12 +74,15 @@ export class ControlFlowStorageNode extends AbstractCustomNode {
                 );
             });
 
-        let structure: ESTree.Node = NodeFactory.variableDeclarationNode([
-            NodeFactory.variableDeclaratorNode(
-                NodeFactory.identifierNode(this.controlFlowStorage.getStorageId()),
-                NodeFactory.objectExpressionNode(propertyNodes)
-            )
-        ]);
+        let structure: ESTree.Node = NodeFactory.variableDeclarationNode(
+            [
+                NodeFactory.variableDeclaratorNode(
+                    NodeFactory.identifierNode(this.controlFlowStorage.getStorageId()),
+                    NodeFactory.objectExpressionNode(propertyNodes)
+                )
+            ],
+            'const'
+        );
 
         structure = NodeUtils.parentizeAst(structure);
 
