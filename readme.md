@@ -1,6 +1,6 @@
-# Javascript Project Obfuscater
-Simple program to Obfuscate (make unreadable) your whole project, code or folder.
-Simply give it a folder address and this baby will do the job. 
+# Javascript Project Obfuscator
+Simple program to Obfuscate (make unreadable) a whole project, code, or folder.
+Simply give it a folder address and it will do the job. 
 
 ## Table of content
 + [Requirements](#requirements)
@@ -26,8 +26,8 @@ node javascript-project-obfuscator/index.js path/to/
 ~~~
 
 ## Documentation
-* Check out excludeList and obOptions vars in the `index.js` file to change options.
-* SelfDefend cause erro sometimes, but IT is highly RECOMMENDED TO Leave it enable
+* Check out `excludeList` and `obOptions` vars in the `index.js` file to change options.
+* `SelfDefend` cause error sometimes, but IT is highly RECOMMENDED To leave it enable
 
 ## License
 * Free
